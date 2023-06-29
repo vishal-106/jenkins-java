@@ -1,27 +1,24 @@
 pipeline{
-    agent {
-        label 'linuxagent'
-    }
-    tools{
-        maven 'local_maven'
-    }
-    stages{
-        stage ('Build'){
-            steps{
-                sh 'mvn clean package'
-            }
-            post{
-                success{
-                    echo "Archiving the Artifacts"
-                    archiveArtifacts artifacts: '**/target/*.war'
-                }
-            }
+ agent any
+ tool {
+     maven 'maven'
+ }
+stages {
+    stage ('Build') {
+        steps{
+            sh 'mvn clean package'
         }
-        stage ('Deploy to tomcat server') {
-            steps{
-
-                echo "Deployment"
-            }
-        }
+    post{
+        success {
+            ech0 "Archiving the Artifacts"
+            ArchiveArtifacts Artifacts: '**/target/*.war'
+         }
+        }     
     }
+}
+stage ('Deploy to tomcat server') {
+    steps {
+        deploy adapters: [tomcat9(credentialsId: 'apache-tomcat', path: '', url: 'http://35.154.254.156:8080/')], contextPath: null, war: '**/*.war'
+    }
+}
 }
